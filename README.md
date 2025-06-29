@@ -42,25 +42,22 @@ The original file had critical conflicts:
 
 ---
 
-
-### 1. Clone the Repository
-
-2. Create Virtual Environment
+1. Create Virtual Environment
 python -m venv venv
-source venv/bin/activate   # On Windows use: venv\Scripts\activate
+source venv/bin/activate  
 
-3. Install Dependencies
+2. Install Dependencies
 pip install -r requirements.txt
 
-If you face version conflicts:
-pip install --no-deps -r requirements.txt
-pip install -r requirements.txt
+ If you face version conflicts:
+ pip install --no-deps -r requirements.txt
+ pip install -r requirements.txt
 
-5. Set Your OpenAI API Key
+3. Set Your OpenAI API Key
 Create a .env file:
 OPENAI_API_KEY=your-api-key-here
 
-6. Run the Server
+4. Run the Server
 uvicorn main:app --reload
 
 API Usage
