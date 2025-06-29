@@ -3,8 +3,9 @@ import os
 import uuid
 import asyncio
 from crewai import Crew, Process
-from agents import doctor, verifier, nutritionist, exercise_specialist  # Import from agents.py
+from agents import doctor, verifier, nutritionist, exercise_specialist
 from task import help_patients, verification, nutrition_analysis, exercise_planning
+from litellm import RateLimitError 
 
 app = FastAPI(title="Blood Test Report Analyser")
 
@@ -29,12 +30,10 @@ async def analyze_blood_report(
     query: str = Form(default="Summarize my Blood Test Report")
 ):
     """Analyze blood test report and provide comprehensive health recommendations"""
-    # Generate unique filename to avoid conflicts
     file_id = str(uuid.uuid4())
     file_path = f"data/blood_test_report_{file_id}.pdf"
 
     try:
-        # Ensure data directory exists
         os.makedirs("data", exist_ok=True)
 
         # Save uploaded file
@@ -42,11 +41,9 @@ async def analyze_blood_report(
             content = await file.read()
             f.write(content)
 
-        # Validate query
         if not query or query.strip() == "":
             query = "Summarize my Blood Test Report"
 
-        # Process the blood report with all specialists
         response = await run_crew(query=query.strip(), file_path=file_path)
 
         return {
@@ -56,11 +53,19 @@ async def analyze_blood_report(
             "file_processed": file.filename
         }
 
+    except RateLimitError:
+        raise HTTPException(
+            status_code=429,
+            detail="OpenAI quota exceeded. Please update your API key or check your billing."
+        )
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing blood report: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing blood report: {str(e)}"
+        )
 
     finally:
-        # Clean up uploaded file
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
