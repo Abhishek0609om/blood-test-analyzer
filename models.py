@@ -1,8 +1,7 @@
 from crewai import Agent
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-
 
 class AgentFactory:
     def __init__(self):
